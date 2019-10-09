@@ -2,7 +2,7 @@
     jp nextByte
 .org 100
 jumpTable:
-.dw execute,setAddr,plusRead,plusWrite
+.dw execute,getAddr,plusRead,plusWrite
 addrBuild:
 .dw $ABCD
 nextByte:
@@ -63,12 +63,15 @@ execute:
 plusRead:
     inc de;
     ld a, (de)
+	ld hl, addrBuild
+	ld (hl), a
+	call makeByte
     call sendByte
     ret
 
 plusWrite:
     inc de;
-    call receiveByte
+    call getByte
 	ld (de), a
     ret
 
