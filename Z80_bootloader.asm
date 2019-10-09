@@ -1,8 +1,8 @@
-;//00 = execute, 01 = read, 02 = write, 03 = plusRead, 04 = plusWrite
+;//00 = execute, 01 = set addr, 02 = read, 03 = write
     jp nextByte
 .org 100
 jumpTable:
-.dw execute,read,write,plusRead,plusWrite
+.dw execute,setAddr,plusRead,plusWrite
 addrBuild:
 .dw $ABCD
 nextByte:
@@ -31,34 +31,34 @@ execute:
 	push de
 	ret;
 
-read:
-	;call getAddr;
-	;ld a, (de)
-	;call sendByte
-	ld hl, addrBuild
-	ld a, (hl)
-	push af
-	call makeByte
-	pop af
-	ld (hl), a
-	
-	ld b, (hl)
-	inc hl
-	ld c, (hl)
-	push bc
-	dec hl
-	call makeAddr
-	pop bc
-	ld (hl), c
-	dec hl
-	ld (hl), b
-	ret
+;read:
+;	;call getAddr;
+;	;ld a, (de)
+;	;call sendByte
+;	ld hl, addrBuild
+;	ld a, (hl)
+;	push af
+;	call makeByte
+;	pop af
+;	ld (hl), a
+;	
+;	ld b, (hl)
+;	inc hl
+;	ld c, (hl)
+;	push bc
+;	dec hl
+;	call makeAddr
+;	pop bc
+;	ld (hl), c
+;	dec hl
+;	ld (hl), b
+;	ret
 
-write:
-	call getAddr;
-	call receiveByte
-	ld (de), a
-	ret
+;write:
+;	call getAddr;
+;	call receiveByte
+;	ld (de), a
+;	ret
 	
 plusRead:
     inc de;
@@ -155,17 +155,3 @@ nibbleToHex:
 hex09n:
 	add a, '0'
 	ret
-
-nextNibble:
-	srl regA;
-	srl regA;
-	srl regA;
-	srl regA;
-	ret;
-
-prevNibble:
-	sla regA;
-	sla regA;
-	sla regA;
-	sla regA;
-	ret;
