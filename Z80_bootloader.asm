@@ -1,6 +1,7 @@
 ;//00 = execute, 01 = set addr, 02 = read, 03 = write
     jp nextByte
-.org 100
+;.org 100
+jTableSize equ 4
 jumpTable:
 .dw execute,getAddr,plusRead,plusWrite
 addrBuild:
@@ -10,18 +11,67 @@ nextByte:
 	push hl;
 	
 	call receiveByte;
+	
+	call getByte
+	ld a, l
+	
+	cp jTableSize
+	ccf
+	ret c
 
-	ld hl, jumpTable;
-	ld b, 0;
-	add a, a
-	ld c, a;
-	add hl, bc;
+	ld hl, jumpTable;10-3
+	
+	;ld b, 0;7-2
+	ld b, h;4-1
+	
+	add a, a;4-1
+	ld c, a;4-1
+	add hl, bc;11-1
 
-	ld b, (hl)
-	inc hl;
-	ld h, (hl)
-	ld l, b
-	jp (hl);//jumps to hl not (hl)
+	ld b, (hl);7-1
+	inc hl;6-1
+	ld h, (hl);7-1
+	ld l, b;4-1
+	jp (hl);4-1
+	;;64-13
+	;61-12
+	
+	
+;	ld hl, jumpTable;10-3
+;	add a, a;4-1
+;	add a, l;4-1
+;	ld l, a;4-1
+;	ld a, 0;7-2
+;	adc a, h;4-1
+;	ld h, a;4-1
+;	
+;	ld a, (hl);7-1
+;	inc hl;6-1
+;	ld h, (hl);7-1
+;	ld l, a;4-1
+;	jp (hl);4-1
+;	;65-15
+	
+	
+;	ld hl, jumpTable;10-3
+;	ld de, jumpAddr;10-3
+;	
+;	add a, a;4-1
+;	ld b, 0;7-2
+;	ld c, a;4-1
+;	add hl, bc;11-1
+;	
+;	ld a, (hl);7-1
+;	inc hl;6-1
+;	ld (de), a;7-1
+;	inc de;6-1
+;	ld a, (hl);7-1
+;	ld (de), a;7-1
+;	
+;	.db $C3
+;jumpAddr:
+;	.dw jumpAddr;10-3
+;	;96-20
 	
 	ret;
 	
@@ -61,19 +111,35 @@ execute:
 ;	ret
 	
 plusRead:
-    inc de;
-    ld a, (de)
+	ld a, (de)
 	ld hl, addrBuild
 	ld (hl), a
 	call makeByte
-    call sendByte
+	call sendByte
+	inc de;
     ret
 
 plusWrite:
-    inc de;
-    call getByte
+	call getByte
 	ld (de), a
+	inc de;
     ret
+
+readLarge:
+	ld b, 0;loop counter
+	ld hl, addrBuild
+	
+	ld a, e
+	and 0x0F;16 byte boundary
+	ld e, a
+	
+	ld a, (de)
+	ld (hl), a
+	
+	call makeByte
+	call sendByte
+	
+	ret
 
 receiveByte:
     ret
@@ -82,7 +148,7 @@ sendByte:
     ret
 
 makeByte:
-    ;call receiveByte
+	;call receiveByte
     rld
     call nibbleToHex
     
