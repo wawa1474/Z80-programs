@@ -3,14 +3,13 @@
 ;.org 100
 jumpTable:
 .dw execute,getAddr,plusRead,plusWrite
-jTableSize equ 4
+jTableSize equ 4;https://www.asm80.com/index.html
+#define jTableSize 4;http://clrhome.org/asm/
 addrBuild:
 .dw $ABCD
 nextByte:
 	ld hl, nextByte;
 	push hl;
-	
-	call receiveByte;
 	
 	call getByte
 	ld a, l
@@ -129,7 +128,8 @@ readLarge:
 	ld hl, addrBuild
 	
 	ld a, e
-	and 0x0F;16 byte boundary
+    ld c, $0F
+	and c;16 byte boundary
 	ld e, a
 	
 	ld a, (de)
