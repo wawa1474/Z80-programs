@@ -1,9 +1,9 @@
 ;//00 = execute, 01 = set addr, 02 = read, 03 = write
     jp nextByte
 ;.org 100
-jTableSize equ 4
 jumpTable:
 .dw execute,getAddr,plusRead,plusWrite
+jTableSize equ 4
 addrBuild:
 .dw $ABCD
 nextByte:
@@ -15,14 +15,14 @@ nextByte:
 	call getByte
 	ld a, l
 	
-	cp jTableSize
+	cp jTableSize;make the user do bounds checking?
 	ccf
 	ret c
 
 	ld hl, jumpTable;10-3
 	
 	;ld b, 0;7-2
-	ld b, h;4-1
+	ld b, h;4-1;h must be 0
 	
 	add a, a;4-1
 	ld c, a;4-1
@@ -76,8 +76,7 @@ nextByte:
 	ret;
 	
 execute:
-	;push hl;
-	call getAddr
+	;call getAddr;must use the getAddr cmd before using the execute cmd
 	push de
 	ret;
 
